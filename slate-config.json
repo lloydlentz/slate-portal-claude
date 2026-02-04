@@ -44,6 +44,13 @@
       "name": "list-entity-fields",
       "description": "List fields for SSIS - Banner360 - Current Registration entity",
       "sourceFile": "queries/list-entity-fields.sql",
+      "status": "active",
+      "type": "Custom SQL"
+    },
+    {
+      "name": "list-portal-parts",
+      "description": "Get portal view parts metadata for automated deployment",
+      "sourceFile": "queries/list-portal-parts.sql",
       "status": "draft",
       "type": "Custom SQL"
     }
@@ -88,6 +95,16 @@
       "status": "ready",
       "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=student-courses",
       "queries": ["student-courses"]
+    },
+    {
+      "name": "list-portal-parts",
+      "type": "GET",
+      "action": "list-portal-parts",
+      "outputType": "JSON",
+      "view": null,
+      "status": "draft",
+      "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=list-portal-parts",
+      "queries": ["list-portal-parts"]
     }
   ],
   "views": [
@@ -95,8 +112,14 @@
       "name": "student-courses",
       "description": "Display current course registrations in a table",
       "sourceFile": "views/student-courses.html",
-      "status": "ready",
-      "usesMethod": "student-courses"
+      "status": "deployed",
+      "usesMethod": "student-courses",
+      "slate": {
+        "view_id": "e5469709-59d3-49fb-a30a-2677b745e96a",
+        "part_id": "8c388fc7-ddc2-4cbf-8680-3eb0b3dfecbe",
+        "part_base": "4ea0ba73-ced1-4996-a50d-3d861d539c1e",
+        "part_type": "html"
+      }
     }
   ]
 }
