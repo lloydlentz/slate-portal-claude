@@ -9,7 +9,6 @@ SELECT
     pq.type AS query_type,
     lq.id AS lookup_query_id,
     lq.name AS query_name,
-    lq.node AS output_node,
     lq.active AS query_active,
     lq.memo AS query_memo
 FROM [portal] p
