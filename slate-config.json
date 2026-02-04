@@ -13,11 +13,11 @@
   "queries": [
     {
       "name": "schema-discovery",
+      "guid": "a3391ca5-df16-4063-9c27-656b4f36d939",
       "description": "Returns table and column metadata from INFORMATION_SCHEMA",
       "sourceFile": "queries/schema-discovery.sql",
       "status": "active",
-      "type": "Custom SQL",
-      "admin_url": "https://student.macalester.edu/manage/query/build?id=a3391ca5-df16-4063-9c27-656b4f36d939&portal=a9e0b17b-7208-4a6c-b7f4-7b9a1c5540cd"
+      "type": "Custom SQL"
     },
     {
       "name": "discover-course-structure",
@@ -28,13 +28,15 @@
     },
     {
       "name": "student-courses",
+      "guid": "bb2ff552-3995-40e6-b679-e1a89250168b",
       "description": "Get current course registrations using Banner360 Current Registration entity",
       "sourceFile": "queries/student-courses.sql",
-      "status": "ready",
+      "status": "active",
       "type": "Custom SQL"
     },
     {
       "name": "list-entities",
+      "guid": "648d53d7-b8bf-497c-8e90-bb6b1d1cd77c",
       "description": "List all active entity definitions from lookup.entity",
       "sourceFile": "queries/list-entities.sql",
       "status": "active",
@@ -42,6 +44,7 @@
     },
     {
       "name": "list-entity-fields",
+      "guid": "b07a7261-ae74-4989-9b7a-cd3990ab7ea2",
       "description": "List fields for SSIS - Banner360 - Current Registration entity",
       "sourceFile": "queries/list-entity-fields.sql",
       "status": "active",
@@ -49,6 +52,7 @@
     },
     {
       "name": "list-portal-parts",
+      "guid": "9afdee62-961e-480d-ade8-232765797967",
       "description": "Get portal view parts metadata for automated deployment",
       "sourceFile": "queries/list-portal-parts.sql",
       "status": "active",
@@ -56,9 +60,18 @@
     },
     {
       "name": "list-portal-queries",
+      "guid": "3bbd7ae6-2a06-4c04-a8f1-ba6b81d145bf",
       "description": "List all queries associated with the portal",
       "sourceFile": "queries/list-portal-queries.sql",
-      "status": "draft",
+      "status": "active",
+      "type": "Custom SQL"
+    },
+    {
+      "name": "list-portal-methods",
+      "guid": "f9548d32-fbb3-4473-9bca-54d32a89e2c0",
+      "description": "Diagnostic query for portal methods",
+      "sourceFile": "queries/list-portal-methods.sql",
+      "status": "active",
       "type": "Custom SQL"
     }
   ],
@@ -99,7 +112,7 @@
       "action": "student-courses",
       "outputType": "JSON",
       "view": null,
-      "status": "ready",
+      "status": "active",
       "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=student-courses",
       "queries": ["student-courses"]
     },
@@ -119,9 +132,19 @@
       "action": "list-portal-queries",
       "outputType": "JSON",
       "view": null,
-      "status": "draft",
+      "status": "active",
       "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=list-portal-queries",
       "queries": ["list-portal-queries"]
+    },
+    {
+      "name": "diagnose-adhoc",
+      "type": "GET",
+      "action": "diagnose-adhoc",
+      "outputType": "JSON",
+      "view": null,
+      "status": "active",
+      "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=diagnose-adhoc",
+      "queries": ["list-portal-methods"]
     }
   ],
   "views": [
