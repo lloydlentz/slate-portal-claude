@@ -2,8 +2,9 @@
 -- Purpose: Get current course registrations for a student
 -- Entity: SSIS - Banner360 - Current Registration (820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0)
 -- Pattern: person >> entity >> field
+-- Parameter: @uid (person GUID from portal context)
 
-SELECT TOP 100
+SELECT
     p.id AS student_id,
     p.first,
     p.last,
@@ -23,6 +24,7 @@ FROM [person] p
 INNER JOIN [entity] e ON e.record = p.id
     AND e.entity = '820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0'
 INNER JOIN [field] f ON f.record = e.id
+WHERE p.id = @uid
 GROUP BY
     p.id,
     p.first,
