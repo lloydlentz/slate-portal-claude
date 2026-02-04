@@ -25,14 +25,27 @@ window.SlateDeployer = (function() {
                 base: '4ea0ba73-ced1-4996-a50d-3d861d539c1e',
                 type: 'html',
                 name: 'student-courses'
+            },
+            'student-list': {
+                sourceFile: 'views/student-list.html',
+                part_id: 'fc91dd5f-2e69-4940-82d3-cd01127355b0',
+                view_id: 'f7014bb5-dccb-4317-bedf-804cea1caba1',
+                base: '4ea0ba73-ced1-4996-a50d-3d861d539c1e',
+                type: 'html',
+                name: 'student-list'
             }
         },
 
         queries: {
             'student-courses': {
                 id: 'bb2ff552-3995-40e6-b679-e1a89250168b',
-                node: 'students',
+                node: 'row',
                 parameters: '<param id="uid" />'
+            },
+            'list-students': {
+                id: '1e4d685b-3166-4044-8969-a89df23edb00',
+                node: 'row',
+                parameters: ''
             }
         }
     };

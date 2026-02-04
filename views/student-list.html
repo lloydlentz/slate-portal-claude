@@ -1,0 +1,478 @@
+<!-- Student List View -->
+<!-- Purpose: Display list of 10 students; click row to show courses in modal -->
+<!-- Requires: list-students Method (JSON), student-courses Method (JSON) -->
+<!-- Brand: Macalester College official colors -->
+
+<style>
+/* Macalester Brand Colors */
+:root {
+    --mac-blue: #01426A;
+    --mac-orange: #D44420;
+    --mac-sky-blue: #72C5E7;
+    --mac-gold: #FFB500;
+    --mac-green: #658D3C;
+    --mac-plum: #8A1B61;
+    --mac-red: #C8102E;
+    --mac-light-gray: #A5ADAF;
+    --mac-dark-gray: #5B6770;
+}
+
+.portal-student-list {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.portal-student-list h2 {
+    margin: 0 0 20px 0;
+    color: var(--mac-blue);
+    font-size: 1.5rem;
+    font-weight: 600;
+    border-bottom: 3px solid var(--mac-orange);
+    padding-bottom: 10px;
+}
+
+.portal-student-list .students-loading,
+.portal-student-list .students-empty {
+    padding: 40px;
+    text-align: center;
+    color: var(--mac-dark-gray);
+}
+
+.portal-student-list .students-empty {
+    background: #f5f7f8;
+    border-radius: 4px;
+    border: 1px dashed var(--mac-light-gray);
+}
+
+.portal-student-list .students-error {
+    padding: 20px;
+    background: #fdeaea;
+    border: 1px solid var(--mac-red);
+    border-left: 4px solid var(--mac-red);
+    border-radius: 4px;
+    color: var(--mac-red);
+}
+
+.portal-student-list .students-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(1, 66, 106, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.portal-student-list .students-table th,
+.portal-student-list .students-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e8eef2;
+}
+
+.portal-student-list .students-table th {
+    background: var(--mac-blue);
+    font-weight: 600;
+    color: #fff;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.portal-student-list .students-table tbody tr {
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.portal-student-list .students-table tbody tr:hover {
+    background: rgba(114, 197, 231, 0.2);
+}
+
+.portal-student-list .students-table tbody tr:nth-child(even) {
+    background: #f9fbfc;
+}
+
+.portal-student-list .students-table tbody tr:nth-child(even):hover {
+    background: rgba(114, 197, 231, 0.25);
+}
+
+.portal-student-list .students-table td {
+    font-size: 0.9375rem;
+    color: #333;
+}
+
+.portal-student-list .student-name {
+    font-weight: 600;
+    color: var(--mac-blue);
+}
+
+.portal-student-list .click-hint {
+    margin-top: 12px;
+    font-size: 0.875rem;
+    color: var(--mac-dark-gray);
+    font-style: italic;
+}
+
+/* Modal Styles */
+.portal-student-list .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(1, 66, 106, 0.6);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.portal-student-list .modal-overlay.active {
+    display: flex;
+}
+
+.portal-student-list .modal-content {
+    background: #fff;
+    border-radius: 8px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+.portal-student-list .modal-header {
+    padding: 16px 20px;
+    background: var(--mac-blue);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.portal-student-list .modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.portal-student-list .modal-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 8px;
+    line-height: 1;
+    opacity: 0.8;
+    transition: opacity 0.15s;
+}
+
+.portal-student-list .modal-close:hover {
+    opacity: 1;
+}
+
+.portal-student-list .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.portal-student-list .modal-loading {
+    padding: 40px;
+    text-align: center;
+    color: var(--mac-dark-gray);
+}
+
+/* Courses table inside modal */
+.portal-student-list .courses-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.portal-student-list .courses-table th,
+.portal-student-list .courses-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e8eef2;
+}
+
+.portal-student-list .courses-table th {
+    background: #f5f7f8;
+    font-weight: 600;
+    color: var(--mac-blue);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.portal-student-list .courses-table tbody tr:hover {
+    background: rgba(114, 197, 231, 0.1);
+}
+
+.portal-student-list .course-code {
+    font-weight: 600;
+    color: var(--mac-blue);
+}
+
+.portal-student-list .credits-total {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: var(--mac-blue);
+    color: #fff;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.portal-student-list .credits-total span {
+    color: var(--mac-orange);
+}
+
+.portal-student-list .courses-empty {
+    padding: 30px;
+    text-align: center;
+    color: var(--mac-dark-gray);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .portal-student-list .students-table,
+    .portal-student-list .courses-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .portal-student-list .modal-content {
+        max-height: 90vh;
+    }
+}
+</style>
+
+<div class="portal-student-list">
+    <h2>Students</h2>
+    <div id="student-list-container">
+        <div class="students-loading">Loading students...</div>
+    </div>
+
+    <!-- Modal for student courses -->
+    <div class="modal-overlay" id="courses-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Student Courses</h3>
+                <button class="modal-close" id="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <div class="modal-loading">Loading courses...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    // Namespace
+    window.SlatePortal = window.SlatePortal || {};
+
+    SlatePortal.StudentList = {
+        config: {
+            studentsEndpoint: '?cmd=list-students',
+            coursesEndpoint: '?cmd=student-courses',
+            containerId: 'student-list-container',
+            modalId: 'courses-modal',
+            modalTitleId: 'modal-title',
+            modalBodyId: 'modal-body'
+        },
+
+        init: function() {
+            this.container = document.getElementById(this.config.containerId);
+            this.modal = document.getElementById(this.config.modalId);
+            this.modalTitle = document.getElementById(this.config.modalTitleId);
+            this.modalBody = document.getElementById(this.config.modalBodyId);
+
+            if (this.container) {
+                this.bindModalEvents();
+                this.loadStudents();
+            }
+        },
+
+        bindModalEvents: function() {
+            var self = this;
+
+            // Close button
+            document.getElementById('modal-close-btn').addEventListener('click', function() {
+                self.closeModal();
+            });
+
+            // Click outside modal
+            this.modal.addEventListener('click', function(e) {
+                if (e.target === self.modal) {
+                    self.closeModal();
+                }
+            });
+
+            // Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && self.modal.classList.contains('active')) {
+                    self.closeModal();
+                }
+            });
+        },
+
+        loadStudents: function() {
+            var self = this;
+
+            fetch(this.config.studentsEndpoint)
+                .then(function(response) {
+                    if (!response.ok) throw new Error('Network error');
+                    return response.json();
+                })
+                .then(function(data) {
+                    self.renderStudents(data.row || []);
+                })
+                .catch(function(error) {
+                    self.renderError(error.message);
+                });
+        },
+
+        renderStudents: function(students) {
+            if (!students || students.length === 0) {
+                this.container.innerHTML = '<div class="students-empty">No students found.</div>';
+                return;
+            }
+
+            var html = '<table class="students-table">';
+            html += '<thead><tr>';
+            html += '<th>Name</th>';
+            html += '<th>Email</th>';
+            html += '<th>Major</th>';
+            html += '<th>Class Year</th>';
+            html += '</tr></thead>';
+            html += '<tbody>';
+
+            for (var i = 0; i < students.length; i++) {
+                var s = students[i];
+                var fullName = this.escape((s.first || '') + ' ' + (s.last || '')).trim();
+
+                html += '<tr data-student-id="' + this.escape(s.student_id || '') + '" ';
+                html += 'data-student-name="' + this.escape(fullName) + '">';
+                html += '<td class="student-name">' + this.escape(s.last || '') + ', ' + this.escape(s.first || '') + '</td>';
+                html += '<td>' + this.escape(s.email || '') + '</td>';
+                html += '<td>' + this.escape(s.major || '—') + '</td>';
+                html += '<td>' + this.escape(s.class_year || '—') + '</td>';
+                html += '</tr>';
+            }
+
+            html += '</tbody></table>';
+            html += '<p class="click-hint">Click a student row to view their courses</p>';
+
+            this.container.innerHTML = html;
+            this.bindRowClicks();
+        },
+
+        bindRowClicks: function() {
+            var self = this;
+            var rows = this.container.querySelectorAll('tbody tr[data-student-id]');
+
+            rows.forEach(function(row) {
+                row.addEventListener('click', function() {
+                    var studentId = this.getAttribute('data-student-id');
+                    var studentName = this.getAttribute('data-student-name');
+                    self.showCourses(studentId, studentName);
+                });
+            });
+        },
+
+        showCourses: function(studentId, studentName) {
+            var self = this;
+
+            this.modalTitle.textContent = 'Courses: ' + studentName;
+            this.modalBody.innerHTML = '<div class="modal-loading">Loading courses...</div>';
+            this.modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            var endpoint = this.config.coursesEndpoint + '&uid=' + encodeURIComponent(studentId);
+
+            fetch(endpoint)
+                .then(function(response) {
+                    if (!response.ok) throw new Error('Network error');
+                    return response.json();
+                })
+                .then(function(data) {
+                    self.renderCourses(data.row || []);
+                })
+                .catch(function(error) {
+                    self.modalBody.innerHTML = '<div class="students-error">Error loading courses: ' + self.escape(error.message) + '</div>';
+                });
+        },
+
+        renderCourses: function(courses) {
+            if (!courses || courses.length === 0) {
+                this.modalBody.innerHTML = '<div class="courses-empty">No courses found for this student.</div>';
+                return;
+            }
+
+            var totalCredits = 0;
+            var html = '<table class="courses-table">';
+            html += '<thead><tr>';
+            html += '<th>Course</th>';
+            html += '<th>Title</th>';
+            html += '<th>Schedule</th>';
+            html += '<th>Instructor</th>';
+            html += '<th>Credits</th>';
+            html += '</tr></thead>';
+            html += '<tbody>';
+
+            for (var i = 0; i < courses.length; i++) {
+                var c = courses[i];
+                var credits = parseFloat(c.credits) || 0;
+                totalCredits += credits;
+
+                html += '<tr>';
+                html += '<td class="course-code">' + this.escape(c.course || '') + '</td>';
+                html += '<td>' + this.escape(c.course_title || '') + '</td>';
+                html += '<td>' + this.escape(c.days || '') + ' ' + this.escape(c.time || '') + '</td>';
+                html += '<td>' + this.escape(c.instructor || '') + '</td>';
+                html += '<td>' + this.escape(c.credits || '') + '</td>';
+                html += '</tr>';
+            }
+
+            html += '</tbody></table>';
+            html += '<div class="credits-total">Total Credits: <span>' + totalCredits + '</span></div>';
+
+            this.modalBody.innerHTML = html;
+        },
+
+        closeModal: function() {
+            this.modal.classList.remove('active');
+            document.body.style.overflow = '';
+        },
+
+        renderError: function(message) {
+            this.container.innerHTML = '<div class="students-error">Error loading students: ' + this.escape(message) + '</div>';
+        },
+
+        escape: function(str) {
+            if (str === null || str === undefined) return '';
+            var div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        }
+    };
+
+    // Initialize when DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            SlatePortal.StudentList.init();
+        });
+    } else {
+        SlatePortal.StudentList.init();
+    }
+})();
+</script>

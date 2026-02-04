@@ -1,6 +1,7 @@
 <!-- Student Courses View -->
 <!-- Purpose: Display current course registrations for a student -->
 <!-- Requires: student-courses Method deployed and active -->
+<!-- Parameter: uid (person GUID) - passed via querystring to filter by student -->
 <!-- Brand: Macalester College official colors -->
 
 <style>
@@ -184,10 +185,25 @@
             }
         },
 
+        getUrlParam: function(name) {
+            var params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        },
+
         loadCourses: function() {
             var self = this;
+            var uid = this.getUrlParam('uid');
+            var endpoint = this.config.endpoint;
 
-            fetch(this.config.endpoint)
+            // uid parameter required to filter by student
+            if (!uid) {
+                this.container.innerHTML = '<div class="courses-error">Missing required parameter: uid</div>';
+                return;
+            }
+
+            endpoint += '&uid=' + encodeURIComponent(uid);
+
+            fetch(endpoint)
                 .then(function(response) {
                     if (!response.ok) throw new Error('Network error');
                     return response.json();

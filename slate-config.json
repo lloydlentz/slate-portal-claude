@@ -73,6 +73,14 @@
       "sourceFile": "queries/list-portal-methods.sql",
       "status": "active",
       "type": "Custom SQL"
+    },
+    {
+      "name": "list-students",
+      "guid": "1e4d685b-3166-4044-8969-a89df23edb00",
+      "description": "Get first 10 students alphabetically for student list view",
+      "sourceFile": "queries/list-students.sql",
+      "status": "active",
+      "type": "Custom SQL"
     }
   ],
   "methods": [
@@ -145,6 +153,16 @@
       "status": "active",
       "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=diagnose-adhoc",
       "queries": ["list-portal-methods"]
+    },
+    {
+      "name": "list-students",
+      "type": "GET",
+      "action": "list-students",
+      "outputType": "JSON",
+      "view": null,
+      "status": "active",
+      "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=list-students",
+      "queries": ["list-students"]
     }
   ],
   "views": [
@@ -157,6 +175,19 @@
       "slate": {
         "view_id": "e5469709-59d3-49fb-a30a-2677b745e96a",
         "part_id": "8c388fc7-ddc2-4cbf-8680-3eb0b3dfecbe",
+        "part_base": "4ea0ba73-ced1-4996-a50d-3d861d539c1e",
+        "part_type": "html"
+      }
+    },
+    {
+      "name": "student-list",
+      "description": "Student list with modal to show courses on click",
+      "sourceFile": "views/student-list.html",
+      "status": "deployed",
+      "usesMethod": ["list-students", "student-courses"],
+      "slate": {
+        "view_id": "f7014bb5-dccb-4317-bedf-804cea1caba1",
+        "part_id": "fc91dd5f-2e69-4940-82d3-cd01127355b0",
         "part_base": "4ea0ba73-ced1-4996-a50d-3d861d539c1e",
         "part_type": "html"
       }
