@@ -1,21 +1,22 @@
 /**
- * Slate Portal View Deployment Script
+ * Slate Portal Deployment Script
  *
  * Usage: Run in browser console while logged into Slate admin
  *
  * 1. Log into Slate admin (https://student.macalester.edu/manage/)
  * 2. Open browser console (F12 > Console)
  * 3. Paste and run this script
- * 4. Call: SlateDeployer.deployView('student-courses')
+ * 4. Call commands (see help at bottom)
  */
 
 window.SlateDeployer = (function() {
     'use strict';
 
-    // Configuration - maps view names to their Slate IDs and GitHub sources
+    // Configuration - maps names to Slate IDs and sources
     const config = {
         repo: 'lloydlentz/slate-portal-claude',
         branch: 'main',
+
         views: {
             'student-courses': {
                 sourceFile: 'views/student-courses.html',
@@ -25,8 +26,19 @@ window.SlateDeployer = (function() {
                 type: 'html',
                 name: 'student-courses'
             }
+        },
+
+        queries: {
+            // Example: Add your queries here
+            // 'student-courses': {
+            //     id: 'bb2ff552-3995-40e6-b679-e1a89250168b',
+            //     node: 'students',
+            //     parameters: '<param id="uid" />'
+            // }
         }
     };
+
+    // ========== View Deployment ==========
 
     async function fetchFromGitHub(filePath) {
         const url = `https://raw.githubusercontent.com/${config.repo}/${config.branch}/${filePath}`;
@@ -37,7 +49,7 @@ window.SlateDeployer = (function() {
         return await response.text();
     }
 
-    async function deployToSlate(viewConfig, html) {
+    async function deployViewToSlate(viewConfig, html) {
         const queryString = new URLSearchParams({
             cmd: 'edit_part',
             type: viewConfig.type,
@@ -60,17 +72,38 @@ window.SlateDeployer = (function() {
 
         const response = await fetch(`/manage/database/portal/widget/html?${queryString}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: formData.toString()
         });
 
         return await response.text();
     }
 
+    // ========== Query Parameter Management ==========
+
+    async function updateQueryParams(queryId, node, parameters) {
+        const url = `/manage/query/build?id=${queryId}&cmd=param`;
+
+        const formData = new URLSearchParams({
+            cmd: 'save',
+            config_xml_node: node,
+            config_xml_parameters: parameters
+        });
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData.toString()
+        });
+
+        return await response.text();
+    }
+
+    // ========== Public API ==========
+
     return {
-        // Deploy a single view by name (fetches from GitHub - requires public repo)
+        // ----- Views -----
+
         async deployView(viewName) {
             const viewConfig = config.views[viewName];
             if (!viewConfig) {
@@ -79,30 +112,24 @@ window.SlateDeployer = (function() {
                 return;
             }
 
-            console.log(`Deploying ${viewName}...`);
-
+            console.log(`Deploying view "${viewName}"...`);
             try {
-                // Fetch source from GitHub
                 console.log(`  Fetching from GitHub: ${viewConfig.sourceFile}`);
                 const html = await fetchFromGitHub(viewConfig.sourceFile);
                 console.log(`  Fetched ${html.length} bytes`);
-
-                // Deploy to Slate
                 console.log(`  Posting to Slate...`);
-                const result = await deployToSlate(viewConfig, html);
+                const result = await deployViewToSlate(viewConfig, html);
 
                 if (result.includes('error')) {
                     console.error(`  Error: ${result}`);
                 } else {
-                    console.log(`  Success! View "${viewName}" deployed.`);
+                    console.log(`  Success!`);
                 }
             } catch (err) {
                 console.error(`  Failed: ${err.message}`);
             }
         },
 
-        // Deploy from clipboard (for private repos)
-        // Usage: Copy file contents, then run SlateDeployer.deployFromClipboard('view-name')
         async deployFromClipboard(viewName) {
             const viewConfig = config.views[viewName];
             if (!viewConfig) {
@@ -111,8 +138,7 @@ window.SlateDeployer = (function() {
                 return;
             }
 
-            console.log(`Deploying ${viewName} from clipboard...`);
-
+            console.log(`Deploying view "${viewName}" from clipboard...`);
             try {
                 const html = await navigator.clipboard.readText();
                 if (!html || html.trim().length === 0) {
@@ -120,39 +146,112 @@ window.SlateDeployer = (function() {
                     return;
                 }
                 console.log(`  Read ${html.length} bytes from clipboard`);
-
                 console.log(`  Posting to Slate...`);
-                const result = await deployToSlate(viewConfig, html);
+                const result = await deployViewToSlate(viewConfig, html);
 
                 if (result.includes('error')) {
                     console.error(`  Error: ${result}`);
                 } else {
-                    console.log(`  Success! View "${viewName}" deployed from clipboard.`);
+                    console.log(`  Success!`);
                 }
             } catch (err) {
                 console.error(`  Failed: ${err.message}`);
             }
         },
 
-        // Deploy all views
-        async deployAll() {
+        async deployAllViews() {
             for (const viewName of Object.keys(config.views)) {
                 await this.deployView(viewName);
             }
         },
 
-        // List available views
         listViews() {
             console.log('Available views:');
             for (const [name, cfg] of Object.entries(config.views)) {
                 console.log(`  - ${name} (${cfg.sourceFile})`);
             }
+        },
+
+        // ----- Queries -----
+
+        async setQueryParams(queryName, node, parameters) {
+            // If queryName is a GUID, use it directly
+            let queryId = queryName;
+            let queryConfig = config.queries[queryName];
+
+            if (queryConfig) {
+                queryId = queryConfig.id;
+            } else if (!queryName.match(/^[0-9a-f-]{36}$/i)) {
+                console.error(`Unknown query: ${queryName}`);
+                console.log('Available queries:', Object.keys(config.queries).join(', ') || '(none configured)');
+                console.log('Or pass a query GUID directly.');
+                return;
+            }
+
+            console.log(`Updating query parameters...`);
+            console.log(`  Query ID: ${queryId}`);
+            console.log(`  Node: ${node}`);
+            console.log(`  Parameters: ${parameters}`);
+
+            try {
+                const result = await updateQueryParams(queryId, node, parameters);
+                if (result.includes('error') || result.includes('Error')) {
+                    console.error(`  Error: ${result}`);
+                } else {
+                    console.log(`  Success!`);
+                }
+            } catch (err) {
+                console.error(`  Failed: ${err.message}`);
+            }
+        },
+
+        // Convenience: Update from config
+        async deployQuery(queryName) {
+            const queryConfig = config.queries[queryName];
+            if (!queryConfig) {
+                console.error(`Unknown query: ${queryName}`);
+                console.log('Available queries:', Object.keys(config.queries).join(', ') || '(none configured)');
+                return;
+            }
+            await this.setQueryParams(queryName, queryConfig.node, queryConfig.parameters);
+        },
+
+        listQueries() {
+            console.log('Configured queries:');
+            if (Object.keys(config.queries).length === 0) {
+                console.log('  (none configured)');
+                console.log('  Add queries to config.queries in this script.');
+            } else {
+                for (const [name, cfg] of Object.entries(config.queries)) {
+                    console.log(`  - ${name} (node: ${cfg.node})`);
+                }
+            }
+        },
+
+        // ----- Utility -----
+
+        help() {
+            console.log(`
+SlateDeployer Commands:
+
+VIEWS:
+  listViews()                         List configured views
+  deployView('name')                  Deploy view from GitHub (public repo)
+  deployFromClipboard('name')         Deploy view from clipboard (private repo)
+  deployAllViews()                    Deploy all views from GitHub
+
+QUERIES:
+  listQueries()                       List configured queries
+  deployQuery('name')                 Update query params from config
+  setQueryParams('name|guid', 'node', '<param ... />')
+                                      Update query params directly
+
+EXAMPLES:
+  SlateDeployer.deployFromClipboard('student-courses')
+  SlateDeployer.setQueryParams('bb2ff552-3995-40e6-b679-e1a89250168b', 'students', '<param id="uid" />')
+`);
         }
     };
 })();
 
-console.log('SlateDeployer loaded. Commands:');
-console.log('  SlateDeployer.listViews()                      - List available views');
-console.log('  SlateDeployer.deployView("view-name")          - Deploy from GitHub (public repo)');
-console.log('  SlateDeployer.deployFromClipboard("view-name") - Deploy from clipboard (private repo)');
-console.log('  SlateDeployer.deployAll()                      - Deploy all views from GitHub');
+console.log('SlateDeployer loaded. Type SlateDeployer.help() for commands.');
