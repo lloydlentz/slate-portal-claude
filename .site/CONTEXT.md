@@ -100,6 +100,34 @@ Slate loosely resembles MVC, but the terminology and capabilities are different:
   * Liquid variables (e.g., `{{items}}`)
   * JSON via Methods
 
+**Query Parameters**
+
+Parameters allow queries to accept dynamic values from the portal context.
+
+* **Defining Parameters:** In the Query's config, set:
+  * Output Node: `row` (or your preferred node name)
+  * Parameters: `<param id="uid" />` (XML format)
+
+* **Using Parameters in SQL:** Reference with `@` prefix:
+  ```sql
+  WHERE p.id = @uid
+  ```
+
+* **Reserved Parameters (automatically available):**
+  * `@identity` - The person ID of the logged-in user
+  * `@id` - Reserved parameter (context-dependent)
+
+* **Custom Parameters:** Define via `<param id="name" />` and pass via URL or portal context
+
+**Example:**
+```sql
+-- Query with @identity parameter (no config needed)
+SELECT * FROM [person] WHERE id = @identity
+
+-- Query with custom @uid parameter (requires <param id="uid" />)
+SELECT * FROM [person] WHERE id = @uid
+```
+
 ---
 
 ## 5. Liquid Markup (Use Carefully)
