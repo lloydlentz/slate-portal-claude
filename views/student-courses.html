@@ -1,0 +1,243 @@
+<!-- Student Courses View -->
+<!-- Purpose: Display current course registrations for a student -->
+<!-- Requires: student-courses Method deployed and active -->
+
+<style>
+.portal-student-courses {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.portal-student-courses h2 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.portal-student-courses .courses-loading {
+    padding: 40px;
+    text-align: center;
+    color: #666;
+}
+
+.portal-student-courses .courses-error {
+    padding: 20px;
+    background: #fee;
+    border: 1px solid #fcc;
+    border-radius: 4px;
+    color: #c00;
+}
+
+.portal-student-courses .courses-empty {
+    padding: 40px;
+    text-align: center;
+    color: #666;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.portal-student-courses .courses-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.portal-student-courses .courses-table th,
+.portal-student-courses .courses-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.portal-student-courses .courses-table th {
+    background: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.portal-student-courses .courses-table tr:hover {
+    background: #fafafa;
+}
+
+.portal-student-courses .courses-table td {
+    font-size: 0.9375rem;
+    color: #444;
+}
+
+.portal-student-courses .course-code {
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.portal-student-courses .course-title {
+    color: #666;
+}
+
+.portal-student-courses .course-schedule {
+    white-space: nowrap;
+}
+
+.portal-student-courses .course-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.portal-student-courses .course-status--registered {
+    background: #e6f4ea;
+    color: #1e7e34;
+}
+
+.portal-student-courses .course-status--waitlisted {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.portal-student-courses .credits-total {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .portal-student-courses .courses-table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+</style>
+
+<div class="portal-student-courses">
+    <h2>My Courses</h2>
+    <div id="student-courses-container">
+        <div class="courses-loading">Loading courses...</div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    // Namespace
+    window.SlatePortal = window.SlatePortal || {};
+
+    SlatePortal.StudentCourses = {
+        config: {
+            endpoint: '?cmd=student-courses',
+            containerId: 'student-courses-container'
+        },
+
+        init: function() {
+            this.container = document.getElementById(this.config.containerId);
+            if (this.container) {
+                this.loadCourses();
+            }
+        },
+
+        loadCourses: function() {
+            var self = this;
+
+            fetch(this.config.endpoint)
+                .then(function(response) {
+                    if (!response.ok) throw new Error('Network error');
+                    return response.json();
+                })
+                .then(function(data) {
+                    self.render(data.row || []);
+                })
+                .catch(function(error) {
+                    self.renderError(error.message);
+                });
+        },
+
+        render: function(courses) {
+            if (!courses || courses.length === 0) {
+                this.container.innerHTML = '<div class="courses-empty">No courses found.</div>';
+                return;
+            }
+
+            // Group by student if multiple (for admin view)
+            // For student portal, typically just one student
+            var html = this.buildTable(courses);
+            this.container.innerHTML = html;
+        },
+
+        buildTable: function(courses) {
+            var totalCredits = 0;
+
+            var html = '<table class="courses-table">';
+            html += '<thead><tr>';
+            html += '<th>Course</th>';
+            html += '<th>Title</th>';
+            html += '<th>Schedule</th>';
+            html += '<th>Location</th>';
+            html += '<th>Instructor</th>';
+            html += '<th>Credits</th>';
+            html += '<th>Status</th>';
+            html += '</tr></thead>';
+            html += '<tbody>';
+
+            for (var i = 0; i < courses.length; i++) {
+                var c = courses[i];
+                var credits = parseFloat(c.credits) || 0;
+                totalCredits += credits;
+
+                var statusClass = 'course-status';
+                if (c.reg_status && c.reg_status.toLowerCase() === 'registered') {
+                    statusClass += ' course-status--registered';
+                } else if (c.reg_status && c.reg_status.toLowerCase().indexOf('wait') >= 0) {
+                    statusClass += ' course-status--waitlisted';
+                }
+
+                html += '<tr>';
+                html += '<td class="course-code">' + this.escape(c.course || '') + '</td>';
+                html += '<td class="course-title">' + this.escape(c.course_title || '') + '</td>';
+                html += '<td class="course-schedule">' + this.escape(c.days || '') + ' ' + this.escape(c.time || '') + '</td>';
+                html += '<td>' + this.escape(c.location || '') + '</td>';
+                html += '<td>' + this.escape(c.instructor || '') + '</td>';
+                html += '<td>' + this.escape(c.credits || '') + '</td>';
+                html += '<td><span class="' + statusClass + '">' + this.escape(c.reg_status || '') + '</span></td>';
+                html += '</tr>';
+            }
+
+            html += '</tbody></table>';
+            html += '<div class="credits-total">Total Credits: ' + totalCredits + '</div>';
+
+            return html;
+        },
+
+        renderError: function(message) {
+            this.container.innerHTML = '<div class="courses-error">Error loading courses: ' + this.escape(message) + '</div>';
+        },
+
+        escape: function(str) {
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    };
+
+    // Initialize when DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            SlatePortal.StudentCourses.init();
+        });
+    } else {
+        SlatePortal.StudentCourses.init();
+    }
+})();
+</script>

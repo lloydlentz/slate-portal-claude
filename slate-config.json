@@ -1,0 +1,102 @@
+{
+  "instance": {
+    "name": "Student Success Instance",
+    "institution": "Macalester College",
+    "baseUrl": "https://student.macalester.edu/"
+  },
+  "portal": {
+    "name": "TEST - Claude Code a Portal",
+    "slug": "test-claude-code-portal",
+    "guid": "a9e0b17b-7208-4a6c-b7f4-7b9a1c5540cd",
+    "endpointPattern": "{{instance.baseUrl}}portal/{{portal.slug}}?cmd={{method.action}}"
+  },
+  "queries": [
+    {
+      "name": "schema-discovery",
+      "description": "Returns table and column metadata from INFORMATION_SCHEMA",
+      "sourceFile": "queries/schema-discovery.sql",
+      "status": "active",
+      "type": "Custom SQL",
+      "admin_url": "https://student.macalester.edu/manage/query/build?id=a3391ca5-df16-4063-9c27-656b4f36d939&portal=a9e0b17b-7208-4a6c-b7f4-7b9a1c5540cd"
+    },
+    {
+      "name": "discover-course-structure",
+      "description": "Discovery queries to understand course data relationships",
+      "sourceFile": "queries/discover-course-structure.sql",
+      "status": "draft",
+      "type": "Custom SQL"
+    },
+    {
+      "name": "student-courses",
+      "description": "Get current course registrations using Banner360 Current Registration entity",
+      "sourceFile": "queries/student-courses.sql",
+      "status": "ready",
+      "type": "Custom SQL"
+    },
+    {
+      "name": "list-entities",
+      "description": "List all active entity definitions from lookup.entity",
+      "sourceFile": "queries/list-entities.sql",
+      "status": "active",
+      "type": "Custom SQL"
+    },
+    {
+      "name": "list-entity-fields",
+      "description": "List fields for SSIS - Banner360 - Current Registration entity",
+      "sourceFile": "queries/list-entity-fields.sql",
+      "status": "draft",
+      "type": "Custom SQL"
+    }
+  ],
+  "methods": [
+    {
+      "name": "schema-discovery",
+      "type": "GET",
+      "action": "schema-discovery",
+      "outputType": "JSON",
+      "view": null,
+      "status": "active",
+      "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=schema-discovery",
+      "queries": ["schema-discovery"]
+    },
+    {
+      "name": "list-entities",
+      "type": "GET",
+      "action": "list-entities",
+      "outputType": "JSON",
+      "view": null,
+      "status": "active",
+      "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=list-entities",
+      "queries": ["list-entities"]
+    },
+    {
+      "name": "list-entity-fields",
+      "type": "GET",
+      "action": "list-entity-fields",
+      "outputType": "JSON",
+      "view": null,
+      "status": "active",
+      "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=list-entity-fields",
+      "queries": ["list-entity-fields"]
+    },
+    {
+      "name": "student-courses",
+      "type": "GET",
+      "action": "student-courses",
+      "outputType": "JSON",
+      "view": null,
+      "status": "ready",
+      "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=student-courses",
+      "queries": ["student-courses"]
+    }
+  ],
+  "views": [
+    {
+      "name": "student-courses",
+      "description": "Display current course registrations in a table",
+      "sourceFile": "views/student-courses.html",
+      "status": "ready",
+      "usesMethod": "student-courses"
+    }
+  ]
+}

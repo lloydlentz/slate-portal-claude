@@ -76,3 +76,10 @@ Never "load everything then filter" - Slate portals fail silently when overloade
 - Access control is enforced by Queries
 - Never rely on client-side filtering for PI data
 - Views must not assume role visibility
+
+## Project-Specific Resources
+
+- **`.site/data/schema.json`** - Database schema snapshot (tables, columns, types)
+- **`.site/WORKFLOW.md`** - Development process and query patterns
+- **`slate-config.json`** - Inventory of deployed Queries, Methods, Views
+- **`queries/`** - SQL source files to paste into Slate
