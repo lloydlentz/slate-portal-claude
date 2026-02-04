@@ -1,8 +1,22 @@
 <!-- Student Courses View -->
 <!-- Purpose: Display current course registrations for a student -->
 <!-- Requires: student-courses Method deployed and active -->
+<!-- Brand: Macalester College official colors -->
 
 <style>
+/* Macalester Brand Colors */
+:root {
+    --mac-blue: #01426A;
+    --mac-orange: #D44420;
+    --mac-sky-blue: #72C5E7;
+    --mac-gold: #FFB500;
+    --mac-green: #658D3C;
+    --mac-plum: #8A1B61;
+    --mac-red: #C8102E;
+    --mac-light-gray: #A5ADAF;
+    --mac-dark-gray: #5B6770;
+}
+
 .portal-student-courses {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     max-width: 1200px;
@@ -12,38 +26,42 @@
 
 .portal-student-courses h2 {
     margin: 0 0 20px 0;
-    color: #333;
+    color: var(--mac-blue);
     font-size: 1.5rem;
     font-weight: 600;
+    border-bottom: 3px solid var(--mac-orange);
+    padding-bottom: 10px;
 }
 
 .portal-student-courses .courses-loading {
     padding: 40px;
     text-align: center;
-    color: #666;
+    color: var(--mac-dark-gray);
 }
 
 .portal-student-courses .courses-error {
     padding: 20px;
-    background: #fee;
-    border: 1px solid #fcc;
+    background: #fdeaea;
+    border: 1px solid var(--mac-red);
+    border-left: 4px solid var(--mac-red);
     border-radius: 4px;
-    color: #c00;
+    color: var(--mac-red);
 }
 
 .portal-student-courses .courses-empty {
     padding: 40px;
     text-align: center;
-    color: #666;
-    background: #f9f9f9;
+    color: var(--mac-dark-gray);
+    background: #f5f7f8;
     border-radius: 4px;
+    border: 1px dashed var(--mac-light-gray);
 }
 
 .portal-student-courses .courses-table {
     width: 100%;
     border-collapse: collapse;
     background: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(1, 66, 106, 0.1);
     border-radius: 4px;
     overflow: hidden;
 }
@@ -52,64 +70,82 @@
 .portal-student-courses .courses-table td {
     padding: 12px 16px;
     text-align: left;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #e8eef2;
 }
 
 .portal-student-courses .courses-table th {
-    background: #f5f5f5;
+    background: var(--mac-blue);
     font-weight: 600;
-    color: #333;
+    color: #fff;
     font-size: 0.875rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.portal-student-courses .courses-table tr:hover {
-    background: #fafafa;
+.portal-student-courses .courses-table tbody tr:hover {
+    background: rgba(114, 197, 231, 0.1);
+}
+
+.portal-student-courses .courses-table tbody tr:nth-child(even) {
+    background: #f9fbfc;
+}
+
+.portal-student-courses .courses-table tbody tr:nth-child(even):hover {
+    background: rgba(114, 197, 231, 0.15);
 }
 
 .portal-student-courses .courses-table td {
     font-size: 0.9375rem;
-    color: #444;
+    color: #333;
 }
 
 .portal-student-courses .course-code {
     font-weight: 600;
-    color: #1a1a1a;
+    color: var(--mac-blue);
 }
 
 .portal-student-courses .course-title {
-    color: #666;
+    color: var(--mac-dark-gray);
 }
 
 .portal-student-courses .course-schedule {
     white-space: nowrap;
+    color: var(--mac-dark-gray);
 }
 
 .portal-student-courses .course-status {
     display: inline-block;
-    padding: 2px 8px;
-    border-radius: 3px;
+    padding: 4px 10px;
+    border-radius: 12px;
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .portal-student-courses .course-status--registered {
-    background: #e6f4ea;
-    color: #1e7e34;
+    background: rgba(101, 141, 60, 0.15);
+    color: var(--mac-green);
 }
 
 .portal-student-courses .course-status--waitlisted {
-    background: #fff3cd;
-    color: #856404;
+    background: rgba(255, 181, 0, 0.2);
+    color: #b38600;
 }
 
 .portal-student-courses .credits-total {
     margin-top: 16px;
-    padding: 12px 16px;
-    background: #f5f5f5;
+    padding: 14px 20px;
+    background: var(--mac-blue);
+    color: #fff;
     border-radius: 4px;
     font-weight: 600;
+    font-size: 1rem;
+}
+
+.portal-student-courses .credits-total span {
+    color: var(--mac-orange);
+    font-size: 1.25rem;
 }
 
 /* Responsive */
@@ -215,7 +251,7 @@
             }
 
             html += '</tbody></table>';
-            html += '<div class="credits-total">Total Credits: ' + totalCredits + '</div>';
+            html += '<div class="credits-total">Total Credits: <span>' + totalCredits + '</span></div>';
 
             return html;
         },
