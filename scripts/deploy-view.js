@@ -29,12 +29,11 @@ window.SlateDeployer = (function() {
         },
 
         queries: {
-            // Example: Add your queries here
-            // 'student-courses': {
-            //     id: 'bb2ff552-3995-40e6-b679-e1a89250168b',
-            //     node: 'students',
-            //     parameters: '<param id="uid" />'
-            // }
+            'student-courses': {
+                id: 'bb2ff552-3995-40e6-b679-e1a89250168b',
+                node: 'students',
+                parameters: '<param id="uid" />'
+            }
         }
     };
 
