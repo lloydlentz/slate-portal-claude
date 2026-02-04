@@ -51,6 +51,13 @@
       "name": "list-portal-parts",
       "description": "Get portal view parts metadata for automated deployment",
       "sourceFile": "queries/list-portal-parts.sql",
+      "status": "active",
+      "type": "Custom SQL"
+    },
+    {
+      "name": "list-portal-queries",
+      "description": "List all queries associated with the portal",
+      "sourceFile": "queries/list-portal-queries.sql",
       "status": "draft",
       "type": "Custom SQL"
     }
@@ -102,9 +109,19 @@
       "action": "list-portal-parts",
       "outputType": "JSON",
       "view": null,
-      "status": "draft",
+      "status": "active",
       "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=list-portal-parts",
       "queries": ["list-portal-parts"]
+    },
+    {
+      "name": "list-portal-queries",
+      "type": "GET",
+      "action": "list-portal-queries",
+      "outputType": "JSON",
+      "view": null,
+      "status": "draft",
+      "endpoint": "https://student.macalester.edu/portal/test-claude-code-portal?cmd=list-portal-queries",
+      "queries": ["list-portal-queries"]
     }
   ],
   "views": [
