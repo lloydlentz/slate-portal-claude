@@ -70,7 +70,7 @@ window.SlateDeployer = (function() {
     }
 
     return {
-        // Deploy a single view by name
+        // Deploy a single view by name (fetches from GitHub - requires public repo)
         async deployView(viewName) {
             const viewConfig = config.views[viewName];
             if (!viewConfig) {
@@ -101,6 +101,39 @@ window.SlateDeployer = (function() {
             }
         },
 
+        // Deploy from clipboard (for private repos)
+        // Usage: Copy file contents, then run SlateDeployer.deployFromClipboard('view-name')
+        async deployFromClipboard(viewName) {
+            const viewConfig = config.views[viewName];
+            if (!viewConfig) {
+                console.error(`Unknown view: ${viewName}`);
+                console.log('Available views:', Object.keys(config.views).join(', '));
+                return;
+            }
+
+            console.log(`Deploying ${viewName} from clipboard...`);
+
+            try {
+                const html = await navigator.clipboard.readText();
+                if (!html || html.trim().length === 0) {
+                    console.error('  Clipboard is empty. Copy the view HTML first.');
+                    return;
+                }
+                console.log(`  Read ${html.length} bytes from clipboard`);
+
+                console.log(`  Posting to Slate...`);
+                const result = await deployToSlate(viewConfig, html);
+
+                if (result.includes('error')) {
+                    console.error(`  Error: ${result}`);
+                } else {
+                    console.log(`  Success! View "${viewName}" deployed from clipboard.`);
+                }
+            } catch (err) {
+                console.error(`  Failed: ${err.message}`);
+            }
+        },
+
         // Deploy all views
         async deployAll() {
             for (const viewName of Object.keys(config.views)) {
@@ -119,6 +152,7 @@ window.SlateDeployer = (function() {
 })();
 
 console.log('SlateDeployer loaded. Commands:');
-console.log('  SlateDeployer.listViews()              - List available views');
-console.log('  SlateDeployer.deployView("view-name")  - Deploy a specific view');
-console.log('  SlateDeployer.deployAll()              - Deploy all views');
+console.log('  SlateDeployer.listViews()                      - List available views');
+console.log('  SlateDeployer.deployView("view-name")          - Deploy from GitHub (public repo)');
+console.log('  SlateDeployer.deployFromClipboard("view-name") - Deploy from clipboard (private repo)');
+console.log('  SlateDeployer.deployAll()                      - Deploy all views from GitHub');
