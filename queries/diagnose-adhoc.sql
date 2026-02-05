@@ -1,7 +1,6 @@
--- Diagnostic: List person-scoped fields
+-- Diagnostic: Explore lookup.field structure
 
-SELECT id, name, type, prompt
+SELECT TOP 20 *
 FROM [lookup.field]
-WHERE scope = 'person'
-  AND active = 1
-ORDER BY name
+WHERE active = 1
+ORDER BY id
