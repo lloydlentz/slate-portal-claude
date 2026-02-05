@@ -1,15 +1,17 @@
 -- List Students Query
--- Purpose: Get first 10 students alphabetically for student list view
+-- Purpose: Get first 10 students alphabetically who have current course registrations
 -- Returns: Basic student info (name, email)
--- Note: Major and class_year require entity joins - add when entity GUIDs identified
+-- Only includes students with records in Banner360 Current Registration entity
 
 SELECT TOP 10
     p.id AS student_id,
     p.first,
     p.last,
     p.email
-    -- TODO: Add major and class_year from appropriate entities
-    -- Example: MAX(CASE WHEN f.field = 'field_id_for_major' THEN f.value END) AS major
 FROM [person] p
-WHERE p.id IS NOT NULL
+WHERE EXISTS (
+    SELECT 1 FROM [entity] e
+    WHERE e.record = p.id
+    AND e.entity = '820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0'
+)
 ORDER BY p.last, p.first
