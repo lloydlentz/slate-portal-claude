@@ -4,6 +4,7 @@
 --   Banner360 Current Registration (820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0)
 --   Advisor (06d6334d-392f-4686-aaa1-ddd2e5640c2b)
 -- Parameter: @uid (person GUID from portal context)
+-- Note: Person links use field.related, not field.value
 
 SELECT
     p.id AS student_id,
@@ -21,17 +22,17 @@ SELECT
     MAX(CASE WHEN f.field = 'b360_curreg_grade' THEN f.value END) AS grade,
     MAX(CASE WHEN f.field = 'b360_curreg_term' THEN f.value END) AS term,
     MAX(CASE WHEN f.field = 'b360_curreg_reg_status' THEN f.value END) AS reg_status,
-    MAX(adv_person.first + ' ' + adv_person.last) AS advisor
+    STRING_AGG(adv_person.first + ' ' + adv_person.last, ', ') AS advisors
 FROM [person] p
 INNER JOIN [entity] e ON e.record = p.id
     AND e.entity = '820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0'
 INNER JOIN [field] f ON f.record = e.id
--- Join to Advisor entity
+-- Join to Advisor entity (person link is in field.related)
 LEFT JOIN [entity] adv_entity ON adv_entity.record = p.id
     AND adv_entity.entity = '06d6334d-392f-4686-aaa1-ddd2e5640c2b'
 LEFT JOIN [field] adv_field ON adv_field.record = adv_entity.id
     AND adv_field.field = 'advisor_person'
-LEFT JOIN [person] adv_person ON adv_person.id = adv_field.value
+LEFT JOIN [person] adv_person ON adv_person.id = adv_field.related
 WHERE p.id = @uid
 GROUP BY
     p.id,
