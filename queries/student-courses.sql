@@ -55,9 +55,9 @@ SELECT
 FROM [person] p
 -- Person-scoped fields (join directly to person, not through entity)
 LEFT JOIN [field] display_name_field ON display_name_field.record = p.id
-    AND display_name_field.field = 'display_name'
+    AND display_name_field.field = 'p_name_display'
 LEFT JOIN [field] pronouns_field ON pronouns_field.record = p.id
-    AND pronouns_field.field = 'pronouns'
+    AND pronouns_field.field = 'p_pronouns'
 INNER JOIN [entity] e ON e.record = p.id
     AND e.entity = '820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0'
 INNER JOIN [field] f ON f.record = e.id
