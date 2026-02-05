@@ -149,6 +149,31 @@
     font-size: 1.25rem;
 }
 
+.portal-student-courses .student-info {
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: #f5f7f8;
+    border-radius: 4px;
+    border-left: 4px solid var(--mac-blue);
+}
+
+.portal-student-courses .student-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--mac-blue);
+    margin: 0 0 8px 0;
+}
+
+.portal-student-courses .student-advisors {
+    font-size: 0.9rem;
+    color: var(--mac-dark-gray);
+    margin: 0;
+}
+
+.portal-student-courses .student-advisors strong {
+    color: var(--mac-blue);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .portal-student-courses .courses-table {
@@ -230,8 +255,17 @@
 
         buildTable: function(courses) {
             var totalCredits = 0;
+            var firstCourse = courses[0];
 
-            var html = '<table class="courses-table">';
+            // Student info header with advisors
+            var html = '<div class="student-info">';
+            html += '<p class="student-name">' + this.escape(firstCourse.first || '') + ' ' + this.escape(firstCourse.last || '') + '</p>';
+            if (firstCourse.advisors) {
+                html += '<p class="student-advisors"><strong>Advisor(s):</strong> ' + this.escape(firstCourse.advisors) + '</p>';
+            }
+            html += '</div>';
+
+            html += '<table class="courses-table">';
             html += '<thead><tr>';
             html += '<th>Course</th>';
             html += '<th>Title</th>';
