@@ -134,14 +134,50 @@ SELECT * FROM [person] WHERE id = @uid
 
 ### Core Data Structure
 
-Slate uses a flexible Entity-Attribute-Value (EAV) model:
+Slate uses a flexible Entity-Attribute-Value (EAV) model with two scopes:
 
+**Entity-Scoped Fields** (most common):
 ```
 [person] → [entity] → [field] → (value | related | prompt)
 ```
 
-**Join Pattern:**
+**Person-Scoped Fields** (direct person attributes):
+```
+[person] → [field] → (value | related | prompt)
+```
+
+### Person-Scoped Fields
+
+Some fields attach directly to the person record without an entity (e.g., display name, citizenship, preferred name). These join directly from person to field:
+
 ```sql
+-- Person-scoped field join pattern
+FROM [person] p
+LEFT JOIN [field] f ON f.record = p.id
+    AND f.field = 'display_name'
+```
+
+**Common person-scoped fields:**
+- `display_name` - Preferred display name
+- `citizenship` - Citizenship status
+- `preferred_name` - Preferred first name
+- Other demographic/profile fields
+
+**Discovery query for person-scoped fields:**
+```sql
+SELECT id, name, type, prompt
+FROM [lookup.field]
+WHERE scope = 'person'
+  AND active = 1
+ORDER BY name
+```
+
+### Entity-Scoped Fields
+
+Most data is stored in entity-scoped fields, which require joining through the entity table:
+
+```sql
+-- Entity-scoped field join pattern
 FROM [person] p
 INNER JOIN [entity] e ON e.record = p.id AND e.entity = '<entity-guid>'
 INNER JOIN [field] f ON f.record = e.id
