@@ -1,9 +1,5 @@
--- Diagnostic: List users to see what's in the user table
+-- Diagnostic: Check lookup.field for advisor_person to see join target
 
-SELECT TOP 5
-    id,
-    first,
-    last,
-    email
-FROM [user]
-ORDER BY last, first
+SELECT *
+FROM [lookup.field]
+WHERE id = 'advisor_person'
