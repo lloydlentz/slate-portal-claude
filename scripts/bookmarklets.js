@@ -12,52 +12,52 @@
 // LOAD DEPLOYER (just loads the script, then use console commands)
 // =============================================================================
 
-javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js?t='+Date.now();s.onload=function(){console.log('SlateDeployer loaded')};document.body.appendChild(s)})();
+javascript:fetch('https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js').then(r=>r.text()).then(eval).then(()=>alert('SlateDeployer loaded!'))
 
 // =============================================================================
 // DEPLOY ALL (queries + views)
 // =============================================================================
 
-javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js?t='+Date.now();s.onload=function(){SlateDeployer.deployAllQueries().then(function(){return SlateDeployer.deployAllViews()}).then(function(){alert('All deployed!')})};document.body.appendChild(s)})();
+javascript:fetch('https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js').then(r=>r.text()).then(eval).then(()=>SlateDeployer.deployAllQueries()).then(()=>SlateDeployer.deployAllViews()).then(()=>alert('All deployed!'))
 
 // =============================================================================
 // DEPLOY ALL QUERIES
 // =============================================================================
 
-javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js?t='+Date.now();s.onload=function(){SlateDeployer.deployAllQueries().then(function(){alert('Queries deployed!')})};document.body.appendChild(s)})();
+javascript:fetch('https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js').then(r=>r.text()).then(eval).then(()=>SlateDeployer.deployAllQueries()).then(()=>alert('Queries deployed!'))
 
 // =============================================================================
 // DEPLOY ALL VIEWS
 // =============================================================================
 
-javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js?t='+Date.now();s.onload=function(){SlateDeployer.deployAllViews().then(function(){alert('Views deployed!')})};document.body.appendChild(s)})();
+javascript:fetch('https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js').then(r=>r.text()).then(eval).then(()=>SlateDeployer.deployAllViews()).then(()=>alert('Views deployed!'))
 
 // =============================================================================
 // DEPLOY: student-courses query
 // =============================================================================
 
-javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js?t='+Date.now();s.onload=function(){SlateDeployer.deployQuerySQL('student-courses').then(function(){alert('student-courses deployed!')})};document.body.appendChild(s)})();
+javascript:fetch('https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js').then(r=>r.text()).then(eval).then(()=>SlateDeployer.deployQuerySQL('student-courses')).then(()=>alert('student-courses deployed!'))
 
 // =============================================================================
 // DEPLOY: list-students query
 // =============================================================================
 
-javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js?t='+Date.now();s.onload=function(){SlateDeployer.deployQuerySQL('list-students').then(function(){alert('list-students deployed!')})};document.body.appendChild(s)})();
+javascript:fetch('https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js').then(r=>r.text()).then(eval).then(()=>SlateDeployer.deployQuerySQL('list-students')).then(()=>alert('list-students deployed!'))
 
 // =============================================================================
 // DEPLOY: list-entity-fields query
 // =============================================================================
 
-javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js?t='+Date.now();s.onload=function(){SlateDeployer.deployQuerySQL('list-entity-fields').then(function(){alert('list-entity-fields deployed!')})};document.body.appendChild(s)})();
+javascript:fetch('https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js').then(r=>r.text()).then(eval).then(()=>SlateDeployer.deployQuerySQL('list-entity-fields')).then(()=>alert('list-entity-fields deployed!'))
 
 // =============================================================================
 // DEPLOY: student-list view
 // =============================================================================
 
-javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js?t='+Date.now();s.onload=function(){SlateDeployer.deployView('student-list').then(function(){alert('student-list view deployed!')})};document.body.appendChild(s)})();
+javascript:fetch('https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js').then(r=>r.text()).then(eval).then(()=>SlateDeployer.deployView('student-list')).then(()=>alert('student-list view deployed!'))
 
 // =============================================================================
 // DEPLOY: student-courses view
 // =============================================================================
 
-javascript:(function(){var s=document.createElement('script');s.src='https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js?t='+Date.now();s.onload=function(){SlateDeployer.deployView('student-courses').then(function(){alert('student-courses view deployed!')})};document.body.appendChild(s)})();
+javascript:fetch('https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js').then(r=>r.text()).then(eval).then(()=>SlateDeployer.deployView('student-courses')).then(()=>alert('student-courses view deployed!'))
