@@ -14,7 +14,10 @@
     INNER JOIN [field] adv_field ON adv_field.record = adv_entity.id
         AND adv_field.field = 'advisor_person'
     INNER JOIN [person] adv_person ON adv_person.id = adv_field.related
+    LEFT JOIN [field] stop_field ON stop_field.record = adv_entity.id
+        AND stop_field.field = 'advisor_stop'
     WHERE adv_entity.entity = '06d6334d-392f-4686-aaa1-ddd2e5640c2b'
+        AND stop_field.value IS NULL
 ),
 AggregatedAdvisors AS (
     SELECT student_id, STRING_AGG(advisor_name, ', ') AS advisors
