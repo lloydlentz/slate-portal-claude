@@ -1,5 +1,9 @@
--- Diagnostic: Check what type X means in lookup.type
+-- Diagnostic: List all type X fields to see pattern
 
-SELECT *
-FROM [lookup.type]
-WHERE id = 'X' 
+SELECT TOP 10
+    id,
+    name,
+    type,
+    entity
+FROM [lookup.field]
+WHERE type = 'X'
