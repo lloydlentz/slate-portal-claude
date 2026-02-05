@@ -157,19 +157,35 @@ LEFT JOIN [field] f ON f.record = p.id
     AND f.field = 'display_name'
 ```
 
-**Common person-scoped fields:**
-- `display_name` - Preferred display name
-- `citizenship` - Citizenship status
-- `preferred_name` - Preferred first name
-- Other demographic/profile fields
-
 **Discovery query for person-scoped fields:**
 ```sql
-SELECT id, name, type, prompt
+-- Person-scoped fields have NO dataset and NO entity in lookup.field
+SELECT id, name, type
 FROM [lookup.field]
-WHERE scope = 'person'
-  AND active = 1
+WHERE active = 1
+  AND dataset IS NULL
+  AND entity IS NULL
 ORDER BY name
+```
+
+### Understanding lookup.field Scope
+
+The `[lookup.field]` table determines where a field is scoped based on these columns:
+
+| Condition | Scope | Description |
+|-----------|-------|-------------|
+| `dataset IS NOT NULL` | Dataset | Field belongs to a dataset |
+| `entity IS NOT NULL` | Entity | Field belongs to an entity (e.g., Advisor) |
+| `dataset IS NULL AND entity IS NULL` | **Person** | Field is directly on the person record |
+
+**Helper pattern for determining scope:**
+```sql
+COALESCE(
+    (SELECT TOP 1 d.name FROM [dataset] d WHERE d.id = lf.dataset) + ' [dataset]',
+    (SELECT TOP 1 d.name FROM [lookup.entity] d WHERE d.id = lf.entity) + ' [entity]',
+    CASE WHEN lf.scope = 'entity' THEN NULL ELSE lf.scope + ' [table]' END,
+    'Person'
+)
 ```
 
 ### Entity-Scoped Fields
