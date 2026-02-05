@@ -1,5 +1,7 @@
--- Diagnostic: Explore lookup.prompt for terms - all columns
+-- Diagnostic: List person-scoped fields
 
-SELECT TOP 10 *
-FROM [lookup.prompt]
-WHERE [key] = 'term'
+SELECT id, name, type, prompt
+FROM [lookup.field]
+WHERE scope = 'person'
+  AND active = 1
+ORDER BY name
