@@ -8,8 +8,9 @@
 
 ## 1. Project Overview
 
-**Project Name:** `<Portal Name>`
+**Project Name:** `test-claude-code-portal`
 **Institution:** `Macalester College`
+**Portal URL:** `https://student.macalester.edu/portal/test-claude-code-portal`
 **Platform:** Technolutions Slate CRM
 **Project Type:** Slate Portal (Queries + Methods + Views)
 
@@ -72,9 +73,10 @@ Slate loosely resembles MVC, but the terminology and capabilities are different:
 
 **SQL Reality**
 
-* Limited SQL dialect
-* No guaranteed CTE support
-* Expensive subqueries
+* T-SQL (SQL Server) dialect
+* ✅ CTEs are supported (`;WITH ... AS`)
+* ✅ `STRING_AGG` is supported (but NOT with `DISTINCT` inside)
+* ✅ `GETDATE()` for current date/time
 * Cannot add indexes
 * Cannot create functions
 * Joins must be explicit and minimal
@@ -281,13 +283,24 @@ LEFT JOIN AggregatedValues av ON av.parent_id = p.id
 
 ### Entity GUIDs (Project-Specific)
 
-Document your entity GUIDs for reference:
+**This project's entity GUIDs:**
 
+```sql
+-- Banner360 Current Registration (course registrations)
+-- Entity GUID: 820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0
+-- Fields: b360_curreg_course, b360_curreg_course_title, b360_curreg_credits,
+--         b360_curreg_days, b360_curreg_time, b360_curreg_location,
+--         b360_curreg_instructor, b360_curreg_grade, b360_curreg_term, b360_curreg_reg_status
+
+-- Advisor (student advisors)
+-- Entity GUID: 06d6334d-392f-4686-aaa1-ddd2e5640c2b
+-- Fields: advisor_person (type X, uses field.related),
+--         advisor_start (type term, uses field.prompt),
+--         advisor_stop (type term, uses field.prompt),
+--         advisor_is_primary (uses field.value)
 ```
--- Example entity GUIDs (replace with your actual values)
--- Banner360 Current Registration: 820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0
--- Advisor: 06d6334d-392f-4686-aaa1-ddd2e5640c2b
-```
+
+**Portal GUID:** `a9e0b17b-7208-4a6c-b7f4-7b9a1c5540cd`
 
 ### Discovering Field Names
 
@@ -306,6 +319,44 @@ Field types:
 - `term` = Term lookup (uses `field.prompt`)
 - `bit` = Boolean (uses `field.value`)
 - `date` = Date (uses `field.value`)
+- (blank) = Usually text (uses `field.value`)
+
+### Validating Field Storage Type
+
+**Important:** Don't assume which column a field uses. Always validate by examining actual data:
+
+```sql
+-- Check how a specific field stores its data
+SELECT
+    f.field AS field_name,
+    f.value AS field_value,
+    f.related AS field_related,
+    f.prompt AS field_prompt,
+    lp.value AS prompt_display_value
+FROM [field] f
+LEFT JOIN [lookup.prompt] lp ON lp.id = f.prompt
+WHERE f.record = '<person-or-entity-guid>'
+  AND f.field IN ('field_name_1', 'field_name_2')
+```
+
+**Example findings:**
+- `p_name_display` → stores directly in `field.value` ("Ahmed Abdelhai")
+- `p_pronouns` → stores GUID in `field.prompt`, display value in `lookup.prompt.value` ("He/Him/His")
+- `advisor_person` → stores person GUID in `field.related`
+
+### Common Person-Scoped Fields (Macalester)
+
+```sql
+-- Discovered via: SELECT id, name, type FROM [lookup.field]
+--                 WHERE active = 1 AND dataset IS NULL AND entity IS NULL
+p_name_display        -- Display Name (uses field.value)
+p_name_display_full   -- Display Full Name
+p_pronouns            -- Pronouns (uses field.prompt -> lookup.prompt)
+p_name_legal          -- Legal Display Name
+p_name_legal_first    -- Legal First Name
+banner_id             -- Banner ID
+p_email               -- Banner Email Address
+```
 
 ---
 
@@ -417,20 +468,69 @@ Slate portals fail silently when overloaded.
 
 **Source of Truth**
 
-* Local Git repository
+* Local Git repository (GitHub: `lloydlentz/slate-portal-claude`)
 * Slate UI is a deployment target only
+
+**Automated Deployment**
+
+This project uses `scripts/deploy-view.js` for automated deployment from GitHub to Slate.
+
+**Loading the deployer (run in browser console while logged into Slate admin):**
+```javascript
+fetch('https://raw.githubusercontent.com/lloydlentz/slate-portal-claude/main/scripts/deploy-view.js?cb=' + Date.now()).then(r=>r.text()).then(eval)
+```
+
+**Common commands:**
+```javascript
+SlateDeployer.help()                    // Show all commands
+SlateDeployer.listQueries()             // List configured queries
+SlateDeployer.listViews()               // List configured views
+SlateDeployer.deployQuerySQL('name')    // Deploy query SQL from GitHub
+SlateDeployer.deployView('name')        // Deploy view from GitHub
+SlateDeployer.deployAllQueries()        // Deploy all queries
+SlateDeployer.deployAllViews()          // Deploy all views
+```
+
+**GitHub CDN Caching:** Raw GitHub content is cached. The deploy script includes cache-busting (`?cb=timestamp`). If content seems stale, wait a minute or use clipboard deployment:
+```javascript
+SlateDeployer.deployQuerySQLFromClipboard('name')
+```
 
 **Editing**
 
-* Code written externally
-* Pasted into Slate Views / Methods
-* No built-in diffing or version history
+* Code written externally in `queries/` and `views/` directories
+* Deployed via SlateDeployer script
+* Git provides version history
 
 **Debugging**
 
 * `console.log`
-* Temporary debug output
-* Query previews
+* Query previews in Slate admin
+* Use `diagnose-adhoc` query for data exploration (see below)
+
+**The diagnose-adhoc Pattern**
+
+This project includes a `diagnose-adhoc` query/method for exploring data structures:
+
+1. Edit `queries/diagnose-adhoc.sql` with your exploratory SQL
+2. Push to GitHub: `git add . && git commit -m "msg" && git push`
+3. Deploy: `SlateDeployer.deployQuerySQL('diagnose-adhoc')`
+4. View results: `https://student.macalester.edu/portal/test-claude-code-portal?cmd=diagnose-adhoc`
+
+**Common diagnostic queries:**
+```sql
+-- List all fields for an entity
+SELECT * FROM [lookup.field] WHERE entity = '<guid>' AND active = 1
+
+-- Check field storage type for a record
+SELECT f.field, f.value, f.related, f.prompt, lp.value AS prompt_value
+FROM [field] f
+LEFT JOIN [lookup.prompt] lp ON lp.id = f.prompt
+WHERE f.record = '<guid>'
+
+-- Explore lookup.prompt for terms
+SELECT * FROM [lookup.prompt] WHERE [key] = 'term'
+```
 
 ---
 
