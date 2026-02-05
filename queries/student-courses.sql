@@ -39,7 +39,7 @@ SELECT
     p.last,
     p.email,
     display_name_field.value AS display_name,
-    pronouns_field.value AS pronouns,
+    pronouns_prompt.value AS pronouns,
     e.id AS registration_id,
     MAX(CASE WHEN f.field = 'b360_curreg_course' THEN f.value END) AS course,
     MAX(CASE WHEN f.field = 'b360_curreg_course_title' THEN f.value END) AS course_title,
@@ -58,6 +58,7 @@ LEFT JOIN [field] display_name_field ON display_name_field.record = p.id
     AND display_name_field.field = 'p_name_display'
 LEFT JOIN [field] pronouns_field ON pronouns_field.record = p.id
     AND pronouns_field.field = 'p_pronouns'
+LEFT JOIN [lookup.prompt] pronouns_prompt ON pronouns_prompt.id = pronouns_field.prompt
 INNER JOIN [entity] e ON e.record = p.id
     AND e.entity = '820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0'
 INNER JOIN [field] f ON f.record = e.id
@@ -69,7 +70,7 @@ GROUP BY
     p.last,
     p.email,
     display_name_field.value,
-    pronouns_field.value,
+    pronouns_prompt.value,
     e.id,
     aa.advisors
 ORDER BY p.last, p.first, course
