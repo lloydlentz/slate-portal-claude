@@ -22,7 +22,7 @@ SELECT
     MAX(CASE WHEN f.field = 'b360_curreg_grade' THEN f.value END) AS grade,
     MAX(CASE WHEN f.field = 'b360_curreg_term' THEN f.value END) AS term,
     MAX(CASE WHEN f.field = 'b360_curreg_reg_status' THEN f.value END) AS reg_status,
-    STRING_AGG(adv_person.first + ' ' + adv_person.last, ', ') AS advisors
+    STRING_AGG(DISTINCT adv_person.first + ' ' + adv_person.last, ', ') AS advisors
 FROM [person] p
 INNER JOIN [entity] e ON e.record = p.id
     AND e.entity = '820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0'
