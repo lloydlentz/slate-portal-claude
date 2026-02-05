@@ -14,10 +14,19 @@
     INNER JOIN [field] adv_field ON adv_field.record = adv_entity.id
         AND adv_field.field = 'advisor_person'
     INNER JOIN [person] adv_person ON adv_person.id = adv_field.related
+    -- Get start term
+    LEFT JOIN [field] start_field ON start_field.record = adv_entity.id
+        AND start_field.field = 'advisor_start'
+    LEFT JOIN [lookup.prompt] start_term ON start_term.id = start_field.prompt
+    -- Get stop term
     LEFT JOIN [field] stop_field ON stop_field.record = adv_entity.id
         AND stop_field.field = 'advisor_stop'
+    LEFT JOIN [lookup.prompt] stop_term ON stop_term.id = stop_field.prompt
     WHERE adv_entity.entity = '06d6334d-392f-4686-aaa1-ddd2e5640c2b'
-        AND stop_field.value IS NULL
+        -- Advisor has started (start term began)
+        AND (start_term.export4 IS NULL OR start_term.export4 <= GETDATE())
+        -- Advisor hasn't ended (stop term hasn't started yet, or no stop term)
+        AND (stop_term.export4 IS NULL OR stop_term.export4 > GETDATE())
 ),
 AggregatedAdvisors AS (
     SELECT student_id, STRING_AGG(advisor_name, ', ') AS advisors
