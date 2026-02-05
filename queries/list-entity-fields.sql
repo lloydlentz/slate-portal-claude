@@ -1,5 +1,5 @@
--- List Fields for Current Registration Entity
--- Purpose: Find field IDs for course registration data
+-- List Fields for Advisor Entity
+-- Purpose: Find field IDs for advisor data
 SELECT
     lf.id AS field_id,
     lf.name AS field_name,
@@ -8,6 +8,6 @@ SELECT
     lf.multiple,
     lf.entity
 FROM [lookup.field] lf
-WHERE lf.entity = '820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0'  -- SSIS - Banner360 - Current Registration
+WHERE lf.entity = '06d6334d-392f-4686-aaa1-ddd2e5640c2b'  -- Advisor
   AND lf.active = 1
 ORDER BY lf.name

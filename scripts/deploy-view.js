@@ -51,6 +51,13 @@ window.SlateDeployer = (function() {
                 sourceFile: 'queries/list-students.sql',
                 node: 'row',
                 parameters: ''
+            },
+            'list-entity-fields': {
+                id: 'b07a7261-ae74-4989-9b7a-cd3990ab7ea2',
+                method_id: '240d909a-4274-4a09-bd7e-1ceb4d37994a',
+                sourceFile: 'queries/list-entity-fields.sql',
+                node: 'row',
+                parameters: ''
             }
         }
     };
