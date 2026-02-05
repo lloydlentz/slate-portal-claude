@@ -130,7 +130,134 @@ SELECT * FROM [person] WHERE id = @uid
 
 ---
 
-## 5. Liquid Markup (Use Carefully)
+## 5. Slate Data Model & Query Patterns
+
+### Core Data Structure
+
+Slate uses a flexible Entity-Attribute-Value (EAV) model:
+
+```
+[person] → [entity] → [field] → (value | related | prompt)
+```
+
+**Join Pattern:**
+```sql
+FROM [person] p
+INNER JOIN [entity] e ON e.record = p.id AND e.entity = '<entity-guid>'
+INNER JOIN [field] f ON f.record = e.id
+```
+
+### Field Value Types
+
+The `[field]` table stores data in three different columns depending on the field type:
+
+| Column | Use Case | Example |
+|--------|----------|---------|
+| `field.value` | Direct values (text, numbers, booleans) | `advisor_is_primary = "1"` |
+| `field.related` | Person/record references (GUIDs) | `advisor_person` → person.id |
+| `field.prompt` | Lookup values (term, status codes) | `advisor_start` → lookup.prompt.id |
+
+**Important:** Always check which column a field uses. Person link fields use `field.related`, NOT `field.value`.
+
+### Joining Person References
+
+When a field references another person (e.g., advisor → person):
+
+```sql
+-- Get advisor name from a person-link field
+INNER JOIN [field] adv_field ON adv_field.record = e.id
+    AND adv_field.field = 'advisor_person'
+INNER JOIN [person] adv_person ON adv_person.id = adv_field.related
+```
+
+### Lookup Prompt Values (Terms, Status Codes)
+
+Fields with type "term" or similar store a GUID in `field.prompt` that references `[lookup.prompt]`:
+
+**lookup.prompt Structure:**
+| Column | Description |
+|--------|-------------|
+| `id` | GUID (stored in field.prompt) |
+| `key` | Category ("term", etc.) |
+| `value` | Display name ("Fall 2025", "Spring 2026") |
+| `export` | Numeric sort order |
+| `export2` | Year |
+| `export4` | Start date (YYYY-MM-DD) |
+| `export5` | End date (YYYY-MM-DD) |
+| `active` | Status flag |
+
+**Joining to get term dates:**
+```sql
+LEFT JOIN [field] start_field ON start_field.record = e.id
+    AND start_field.field = 'advisor_start'
+LEFT JOIN [lookup.prompt] start_term ON start_term.id = start_field.prompt
+```
+
+### Filtering by Date Ranges (e.g., Current Advisors)
+
+To filter for "current" records based on term dates:
+
+```sql
+WHERE
+    -- Has started (start term date <= today)
+    (start_term.export4 IS NULL OR start_term.export4 <= GETDATE())
+    -- Hasn't ended (stop term date > today, or no stop term)
+    AND (stop_term.export4 IS NULL OR stop_term.export4 > GETDATE())
+```
+
+### Aggregating Multiple Values
+
+Use `STRING_AGG` for combining multiple related records. Note: T-SQL does not support `DISTINCT` inside `STRING_AGG`, so use a CTE:
+
+```sql
+;WITH DistinctValues AS (
+    SELECT DISTINCT
+        parent.id AS parent_id,
+        child.name AS child_name
+    FROM [parent]
+    INNER JOIN [child] ON ...
+),
+AggregatedValues AS (
+    SELECT parent_id, STRING_AGG(child_name, ', ') AS children
+    FROM DistinctValues
+    GROUP BY parent_id
+)
+SELECT p.*, av.children
+FROM [parent] p
+LEFT JOIN AggregatedValues av ON av.parent_id = p.id
+```
+
+### Entity GUIDs (Project-Specific)
+
+Document your entity GUIDs for reference:
+
+```
+-- Example entity GUIDs (replace with your actual values)
+-- Banner360 Current Registration: 820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0
+-- Advisor: 06d6334d-392f-4686-aaa1-ddd2e5640c2b
+```
+
+### Discovering Field Names
+
+Use `[lookup.field]` to find available fields for an entity:
+
+```sql
+SELECT id, name, type, prompt
+FROM [lookup.field]
+WHERE entity = '<entity-guid>'
+  AND active = 1
+ORDER BY name
+```
+
+Field types:
+- `X` = Cross-reference (person link, uses `field.related`)
+- `term` = Term lookup (uses `field.prompt`)
+- `bit` = Boolean (uses `field.value`)
+- `date` = Date (uses `field.value`)
+
+---
+
+## 6. Liquid Markup (Use Carefully)
 
 **Liquid Is Limited**
 
@@ -152,7 +279,7 @@ SELECT * FROM [person] WHERE id = @uid
 
 ---
 
-## 6. JavaScript Environment
+## 7. JavaScript Environment
 
 **Allowed**
 
@@ -177,7 +304,7 @@ SELECT * FROM [person] WHERE id = @uid
 
 ---
 
-## 7. CSS Rules
+## 8. CSS Rules
 
 Slate portals run in a **shared CSS environment**.
 
@@ -194,7 +321,7 @@ Slate portals run in a **shared CSS environment**.
 
 ---
 
-## 8. Navigation & State
+## 9. Navigation & State
 
 **Identity**
 
@@ -215,7 +342,7 @@ Slate portals run in a **shared CSS environment**.
 
 ---
 
-## 9. Performance Expectations
+## 10. Performance Expectations
 
 Slate portals fail silently when overloaded.
 
@@ -234,7 +361,7 @@ Slate portals fail silently when overloaded.
 
 ---
 
-## 10. Development Workflow
+## 11. Development Workflow
 
 **Source of Truth**
 
@@ -255,7 +382,7 @@ Slate portals fail silently when overloaded.
 
 ---
 
-## 11. UX & Design Principles
+## 12. UX & Design Principles
 
 This portal prioritizes:
 
@@ -269,7 +396,7 @@ This portal prioritizes:
 
 ---
 
-## 12. Explicit “Do Not Do” List
+## 13. Explicit "Do Not Do" List
 
 The following are **not allowed** in generated solutions:
 
@@ -283,7 +410,7 @@ The following are **not allowed** in generated solutions:
 
 ---
 
-## 13. Instruction to the Code Generator
+## 14. Instruction to the Code Generator
 
 > You are assisting with a Technolutions Slate CRM Portal project.
 > All solutions must fit within Slate’s Portal framework and its limitations.
