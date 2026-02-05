@@ -2,4 +2,4 @@
 
 SELECT *
 FROM [lookup.type]
-WHERE id = 'X'
+WHERE id = 'X' 
