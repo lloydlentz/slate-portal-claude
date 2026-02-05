@@ -1,7 +1,8 @@
 -- Student Current Courses Query
--- Purpose: Get current course registrations for a student
--- Entity: SSIS - Banner360 - Current Registration (820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0)
--- Pattern: person >> entity >> field
+-- Purpose: Get current course registrations for a student with advisor info
+-- Entities:
+--   Banner360 Current Registration (820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0)
+--   Advisor (06d6334d-392f-4686-aaa1-ddd2e5640c2b)
 -- Parameter: @uid (person GUID from portal context)
 
 SELECT
@@ -19,7 +20,16 @@ SELECT
     MAX(CASE WHEN f.field = 'b360_curreg_instructor' THEN f.value END) AS instructor,
     MAX(CASE WHEN f.field = 'b360_curreg_grade' THEN f.value END) AS grade,
     MAX(CASE WHEN f.field = 'b360_curreg_term' THEN f.value END) AS term,
-    MAX(CASE WHEN f.field = 'b360_curreg_reg_status' THEN f.value END) AS reg_status
+    MAX(CASE WHEN f.field = 'b360_curreg_reg_status' THEN f.value END) AS reg_status,
+    -- Advisor info (aggregated across all advisors)
+    (SELECT STRING_AGG(adv_person.first + ' ' + adv_person.last, ', ')
+     FROM [entity] adv_entity
+     INNER JOIN [field] adv_field ON adv_field.record = adv_entity.id
+        AND adv_field.field = 'advisor_person'
+     INNER JOIN [person] adv_person ON adv_person.id = adv_field.value
+     WHERE adv_entity.record = p.id
+        AND adv_entity.entity = '06d6334d-392f-4686-aaa1-ddd2e5640c2b'
+    ) AS advisors
 FROM [person] p
 INNER JOIN [entity] e ON e.record = p.id
     AND e.entity = '820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0'
