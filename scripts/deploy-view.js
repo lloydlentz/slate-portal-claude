@@ -72,7 +72,8 @@ window.SlateDeployer = (function() {
     // ========== View Deployment ==========
 
     async function fetchFromGitHub(filePath) {
-        const url = `https://raw.githubusercontent.com/${config.repo}/${config.branch}/${filePath}`;
+        const cacheBust = Date.now();
+        const url = `https://raw.githubusercontent.com/${config.repo}/${config.branch}/${filePath}?cb=${cacheBust}`;
         const response = await fetch(url);
         if (!response.ok) {
             throw new Error(`Failed to fetch ${filePath}: ${response.status}`);

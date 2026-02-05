@@ -1,6 +1,5 @@
--- Diagnostic: Check if advisor GUIDs exist in user table
--- Test with known advisor ID from previous results
+-- Diagnostic: Check if advisor GUID exists in entity table
 
 SELECT TOP 1 *
-FROM [user]
+FROM [entity]
 WHERE id = '639b337f-1768-4788-94f9-19d4c0c134fc'
