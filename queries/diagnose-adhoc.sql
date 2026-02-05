@@ -1,4 +1,4 @@
--- Diagnostic: Explore lookup.prompt for terms
+-- Diagnostic: Explore lookup.prompt for terms - all fields
 
 SELECT TOP 20
     id,
@@ -6,7 +6,11 @@ SELECT TOP 20
     name,
     [start],
     [stop],
-    active
+    active,
+    [export],
+    [export2],
+    [export3],
+    [export4]
 FROM [lookup.prompt]
 WHERE [key] = 'term'
 ORDER BY [start] DESC
