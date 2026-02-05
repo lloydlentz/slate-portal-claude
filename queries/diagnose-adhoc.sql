@@ -1,6 +1,8 @@
--- Diagnostic: Explore lookup.field structure
+-- Diagnostic: List person-scoped fields (no dataset, no entity)
 
-SELECT TOP 20 *
+SELECT id, name, type
 FROM [lookup.field]
 WHERE active = 1
-ORDER BY id
+  AND dataset IS NULL
+  AND entity IS NULL
+ORDER BY name
