@@ -58,6 +58,13 @@ window.SlateDeployer = (function() {
                 sourceFile: 'queries/list-entity-fields.sql',
                 node: 'row',
                 parameters: ''
+            },
+            'diagnose-adhoc': {
+                id: 'f9548d32-fbb3-4473-9bca-54d32a89e2c0',
+                method_id: 'db8b0797-e766-41a1-a41d-956b4a9cdfcc',
+                sourceFile: 'queries/list-portal-methods.sql',
+                node: 'row',
+                parameters: ''
             }
         }
     };
