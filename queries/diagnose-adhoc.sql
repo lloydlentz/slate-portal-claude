@@ -1,5 +1,5 @@
--- Diagnostic: Check lookup.field for advisor_person to see join target
+-- Diagnostic: Check what type X means in lookup.type
 
 SELECT *
-FROM [lookup.field]
-WHERE id = 'advisor_person'
+FROM [lookup.type]
+WHERE id = 'X'
