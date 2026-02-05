@@ -38,6 +38,8 @@ SELECT
     p.first,
     p.last,
     p.email,
+    display_name_field.value AS display_name,
+    pronouns_field.value AS pronouns,
     e.id AS registration_id,
     MAX(CASE WHEN f.field = 'b360_curreg_course' THEN f.value END) AS course,
     MAX(CASE WHEN f.field = 'b360_curreg_course_title' THEN f.value END) AS course_title,
@@ -51,6 +53,11 @@ SELECT
     MAX(CASE WHEN f.field = 'b360_curreg_reg_status' THEN f.value END) AS reg_status,
     aa.advisors
 FROM [person] p
+-- Person-scoped fields (join directly to person, not through entity)
+LEFT JOIN [field] display_name_field ON display_name_field.record = p.id
+    AND display_name_field.field = 'display_name'
+LEFT JOIN [field] pronouns_field ON pronouns_field.record = p.id
+    AND pronouns_field.field = 'pronouns'
 INNER JOIN [entity] e ON e.record = p.id
     AND e.entity = '820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0'
 INNER JOIN [field] f ON f.record = e.id
@@ -61,6 +68,8 @@ GROUP BY
     p.first,
     p.last,
     p.email,
+    display_name_field.value,
+    pronouns_field.value,
     e.id,
     aa.advisors
 ORDER BY p.last, p.first, course

@@ -239,12 +239,28 @@
     color: var(--mac-dark-gray);
 }
 
-.portal-student-list .student-advisors {
+.portal-student-list .student-info-section {
     margin-bottom: 16px;
     padding: 12px 16px;
     background: #f5f7f8;
     border-radius: 4px;
     border-left: 4px solid var(--mac-orange);
+}
+
+.portal-student-list .student-display-info {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+    color: var(--mac-blue);
+}
+
+.portal-student-list .student-pronouns {
+    font-weight: normal;
+    color: var(--mac-dark-gray);
+    font-size: 0.9rem;
+}
+
+.portal-student-list .student-advisors {
+    margin: 0;
     font-size: 0.9rem;
     color: var(--mac-dark-gray);
 }
@@ -435,11 +451,27 @@
             var totalCredits = 0;
             var firstCourse = courses[0];
 
-            // Show advisors if available
-            var html = '';
-            if (firstCourse.advisors) {
-                html += '<div class="student-advisors"><strong>Advisor(s):</strong> ' + this.escape(firstCourse.advisors) + '</div>';
+            // Show student info (display name, pronouns, advisors)
+            var html = '<div class="student-info-section">';
+
+            // Display name and pronouns
+            if (firstCourse.display_name || firstCourse.pronouns) {
+                html += '<p class="student-display-info">';
+                if (firstCourse.display_name) {
+                    html += '<strong>' + this.escape(firstCourse.display_name) + '</strong>';
+                }
+                if (firstCourse.pronouns) {
+                    html += ' <span class="student-pronouns">(' + this.escape(firstCourse.pronouns) + ')</span>';
+                }
+                html += '</p>';
             }
+
+            // Advisors
+            if (firstCourse.advisors) {
+                html += '<p class="student-advisors"><strong>Advisor(s):</strong> ' + this.escape(firstCourse.advisors) + '</p>';
+            }
+
+            html += '</div>';
 
             html += '<table class="courses-table">';
             html += '<thead><tr>';
