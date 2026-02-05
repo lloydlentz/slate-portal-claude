@@ -22,17 +22,18 @@ SELECT
     MAX(CASE WHEN f.field = 'b360_curreg_grade' THEN f.value END) AS grade,
     MAX(CASE WHEN f.field = 'b360_curreg_term' THEN f.value END) AS term,
     MAX(CASE WHEN f.field = 'b360_curreg_reg_status' THEN f.value END) AS reg_status,
-    STRING_AGG(DISTINCT adv_person.first + ' ' + adv_person.last, ', ') AS advisors
+    (SELECT STRING_AGG(adv_person.first + ' ' + adv_person.last, ', ')
+     FROM [entity] adv_entity
+     INNER JOIN [field] adv_field ON adv_field.record = adv_entity.id
+         AND adv_field.field = 'advisor_person'
+     INNER JOIN [person] adv_person ON adv_person.id = adv_field.related
+     WHERE adv_entity.record = p.id
+         AND adv_entity.entity = '06d6334d-392f-4686-aaa1-ddd2e5640c2b'
+    ) AS advisors
 FROM [person] p
 INNER JOIN [entity] e ON e.record = p.id
     AND e.entity = '820d2fe3-0696-4cb6-97ec-c5cbd0cf91d0'
 INNER JOIN [field] f ON f.record = e.id
--- Join to Advisor entity (person link is in field.related)
-LEFT JOIN [entity] adv_entity ON adv_entity.record = p.id
-    AND adv_entity.entity = '06d6334d-392f-4686-aaa1-ddd2e5640c2b'
-LEFT JOIN [field] adv_field ON adv_field.record = adv_entity.id
-    AND adv_field.field = 'advisor_person'
-LEFT JOIN [person] adv_person ON adv_person.id = adv_field.related
 WHERE p.id = @uid
 GROUP BY
     p.id,
