@@ -239,6 +239,20 @@
     color: var(--mac-dark-gray);
 }
 
+.portal-student-list .student-advisors {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: #f5f7f8;
+    border-radius: 4px;
+    border-left: 4px solid var(--mac-orange);
+    font-size: 0.9rem;
+    color: var(--mac-dark-gray);
+}
+
+.portal-student-list .student-advisors strong {
+    color: var(--mac-blue);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .portal-student-list .students-table,
@@ -419,7 +433,15 @@
             }
 
             var totalCredits = 0;
-            var html = '<table class="courses-table">';
+            var firstCourse = courses[0];
+
+            // Show advisors if available
+            var html = '';
+            if (firstCourse.advisors) {
+                html += '<div class="student-advisors"><strong>Advisor(s):</strong> ' + this.escape(firstCourse.advisors) + '</div>';
+            }
+
+            html += '<table class="courses-table">';
             html += '<thead><tr>';
             html += '<th>Course</th>';
             html += '<th>Title</th>';
